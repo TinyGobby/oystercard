@@ -17,7 +17,7 @@ describe Oystercard do
       expect{subject.top_up(value)}.to change{subject.balance}.by(value)
     end
 
-    it 'does not permit @balance to go beyond MAXIMUM_BALANCE' do
+    it 'fails if @balance will go over MAXIMUM_BALANCE' do
       value = Oystercard::MAXIMUM_BALANCE + 1
       expect{subject.top_up(value)}.to raise_error("Value exceeds maximum allowed: #{Oystercard::MAXIMUM_BALANCE}")
     end
