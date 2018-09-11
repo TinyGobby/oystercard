@@ -2,6 +2,8 @@ require 'oystercard'
 
 describe Oystercard do
 
+let( :station ) {double :station}
+
   describe "#balance" do
     
     it 'returns an initial @balance of 0' do
@@ -24,31 +26,52 @@ describe Oystercard do
 
   end
 
-  describe '#deduct' do
-    
-    it 'updates @balance after fare has been deducted' do
-      fare = rand(1..5)
-      expect{subject.deduct(fare)}.to change{subject.balance}.by(-fare)
-    end
-
-  end
-
   describe '#touch_in' do
-
-    it "changes @status of Oystercard to 'true' ('in journey')" do
-      expect(subject.touch_in).to eq(true)
+    
+    it "says your journey has started" do
+      subject.top_up(Oystercard::MINIMUM_BALANCE)
+      subject.touch_in(station)
+      expect(subject.in_journey?).to eq(true)
     end
 
     it 'raises error when @balance is below MINIMUM_BALANCE' do
-      expect { subject.touch_in }.to raise_error('Balance too low')
+      expect { subject.touch_in(station) }.to raise_error('Balance too low')
+    end
+
+    it 'sets the starting station' do
+      # entry_station = double(:station => "zone1")
+      subject.top_up(Oystercard::MAXIMUM_BALANCE)
+      subject.touch_in(station)
+      expect(subject.entry_station).to eq(station)
     end
     
   end
 
-  describe '#touch_out' do
+  describe '#touch_out(station)' do
 
-    it "changes @status of Oystercard to 'false' ('not in journey')" do
-      expect(subject.touch_out).to eq(false)
+    it "says your journey has finished" do
+      subject.top_up(Oystercard::MAXIMUM_BALANCE)
+      subject.touch_in(station)
+      subject.touch_out(station)
+      expect(subject.in_journey?).to eq(false)
+    end
+
+    it "deducts journey fare from @balance" do
+      subject.top_up(Oystercard::MINIMUM_BALANCE)
+      subject.touch_in(station)
+      expect { subject.touch_out(station) }.to change{ subject.balance }.by -(Oystercard::MINIMUM_FARE)
+    end
+
+    it 'adds @entry_station and end_station to @journey_history' do
+      subject.top_up(Oystercard::MAXIMUM_BALANCE)
+      s1 = station #"Barbican-station"
+      subject.touch_in(s1)
+      s2 = station #"Wimbledon_station"
+      subject.touch_out(s2)
+      expect(subject.journey_history).to eq([{
+        entry_station: s1, 
+        exit_station: s2
+      }])
     end
 
   end
@@ -56,13 +79,15 @@ describe Oystercard do
   describe '#in_journey?' do
 
     it 'shows whether a card is in journey' do
-      subject.touch_in
+      subject.top_up(Oystercard::MINIMUM_BALANCE)
+      subject.touch_in(station)
       expect(subject).to be_in_journey
     end
 
     it 'shows whether a card is in journey' do
-      subject.touch_in
-      subject.touch_out
+      subject.top_up(Oystercard::MINIMUM_BALANCE)
+      subject.touch_in(station)
+      subject.touch_out(station)
       expect(subject).not_to be_in_journey
     end
 
