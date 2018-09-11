@@ -32,7 +32,6 @@ class Oystercard
     !!entry_station
   end
 
-
   private
 
   def deduct(fare)

@@ -88,5 +88,20 @@ card = Oystercard.new
 charring_cross = Station.new
 kings_cross = Station.new
 card.top_up(10)
+card.touch_in(kings_cross)
+card.entry_station == kings_cross
+card.touch_out(charring_cross)
+card.journey_history
+
+In order to know how far I have travelled
+As a customer
+I want to know what zone a station is in
+# irb
+require './lib/oystercard.rb'
+require './lib/station.rb'
+card = Oystercard.new
+card.top_up(10)
+station = Station.new('charing_cross', 1)
+card.entry_station
 card.touch_in(station)
-card.entry_station == station
+card.entry_station

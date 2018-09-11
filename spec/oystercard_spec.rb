@@ -2,7 +2,8 @@ require 'oystercard'
 
 describe Oystercard do
 
-let( :station ) {double :station}
+let(:station) {instance_double("Station", :name => 'ABC', :zone => 1)}
+
 
   describe "#balance" do
     
