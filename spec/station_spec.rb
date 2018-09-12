@@ -2,7 +2,7 @@ require 'station'
 
 describe Station do
 
-  subject { described_class.new("ABC", 1) }
+  subject { described_class.new("King's Cross", 1) }
 
   describe '#zone' do
     it "should return the zone of the Station" do
@@ -12,7 +12,7 @@ describe Station do
   
   describe '#name' do
     it "should return the name of the Station" do
-      expect(subject.name).to eq 'ABC'
+      expect(subject.name).to eq 'King\'s Cross'
     end
   end
 

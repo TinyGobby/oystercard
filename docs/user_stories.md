@@ -105,3 +105,17 @@ station = Station.new('charing_cross', 1)
 card.entry_station
 card.touch_in(station)
 card.entry_station-]4
+
+In order to be charged correctly
+As a customer
+I need a penalty charge deducted if I fail to touch in or out
+# irb
+require './lib/oystercard.rb'
+require './lib/station.rb'
+card = Oystercard.new
+card.top_up(10)
+kings_cross = Station.new('kings_cross', 1)
+charing_cross = Station.new('charing_cross', 1)
+card.touch_in(kings_cross)
+card.touch_in(charing_cross)
+card.balance == 4 # true
