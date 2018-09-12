@@ -56,7 +56,7 @@ let(:penalty_fare) { JourneyHandler::PENALTY_FARE }
       subject.top_up(max_balance)
       subject.touch_in(entry_station)
       subject.touch_in(exit_station)
-      expect(subject.balance).to eq(max_balance-6)
+      expect(subject.balance).to eq(max_balance-penalty_fare)
     end
     
   end
@@ -96,7 +96,7 @@ let(:penalty_fare) { JourneyHandler::PENALTY_FARE }
     end
 
     it 'charges a penalty fare if touching out without touching in' do
-      expect { subject.touch_out(exit_station) }.to change{ subject.balance }.by(-6)
+      expect { subject.touch_out(exit_station) }.to change{ subject.balance }.by(-penalty_fare)
     end
 
   end
