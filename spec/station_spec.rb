@@ -2,7 +2,7 @@ require 'station'
 
 describe Station do
 
-  subject { described_class.new("ABC", 1)}
+  subject { described_class.new("ABC", 1) }
 
   describe '#zone' do
     it "should return the zone of the Station" do

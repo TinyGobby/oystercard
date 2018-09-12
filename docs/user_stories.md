@@ -104,4 +104,4 @@ card.top_up(10)
 station = Station.new('charing_cross', 1)
 card.entry_station
 card.touch_in(station)
-card.entry_station
+card.entry_station-]4
