@@ -2,7 +2,12 @@ require 'oystercard'
 
 describe Oystercard do
 
-let(:station) { instance_double("Station", :name => 'ABC', :zone => 1) }
+let(:entry_station) { instance_double("Station", :name => "Charring Cross", :zone => 1) }
+let(:exit_station) { instance_double("Station", :name => "King's Cross", :zone => 1) }
+let(:min_balance) { Oystercard::MINIMUM_BALANCE }
+let(:max_balance) { Oystercard::MAXIMUM_BALANCE }
+let(:min_fare) { JourneyHandler::MINIMUM_FARE }
+let(:penalty_fare) { JourneyHandler::PENALTY_FARE }
 
   describe "#balance" do
     
@@ -15,63 +20,83 @@ let(:station) { instance_double("Station", :name => 'ABC', :zone => 1) }
   describe "#top_up" do
 
     it 'updates the balance when passed a value' do
+
       value = rand(1..50)
+
       expect{subject.top_up(value)}.to change{subject.balance}.by(value)
+
     end
 
     it 'fails if @balance will go over MAXIMUM_BALANCE' do
-      value = Oystercard::MAXIMUM_BALANCE + 1
-      expect{subject.top_up(value)}.to raise_error("Value exceeds maximum allowed: #{Oystercard::MAXIMUM_BALANCE}")
+
+      value = max_balance + 1
+
+      expect{subject.top_up(value)}.to raise_error("Value exceeds maximum allowed: #{max_balance}")
+
     end
 
   end
 
   describe '#touch_in' do
-    
-    it "says your journey has started" do
-      subject.top_up(Oystercard::MINIMUM_BALANCE)
-      subject.touch_in(station)
-      expect(subject.in_journey?).to eq(true)
-    end
 
-    it 'raises error when @balance is below MINIMUM_BALANCE' do
-      expect { subject.touch_in(station) }.to raise_error('Balance too low')
+    it 'fails when @balance is below MINIMUM_BALANCE' do
+      expect { subject.touch_in(entry_station) }.to raise_error('Balance too low')
     end
 
     it 'sets the starting station' do
-      # entry_station = double(:station => "zone1")
-      subject.top_up(Oystercard::MAXIMUM_BALANCE)
-      subject.touch_in(station)
-      expect(subject.entry_station).to eq(station)
+      
+      subject.top_up(min_balance)
+      subject.touch_in(entry_station)
+
+      expect(subject.journey_handler.entry_station).to eq(entry_station)
+
+    end
+
+    it 'charges a penalty fare if touched in twice' do
+      subject.top_up(max_balance)
+      subject.touch_in(entry_station)
+      subject.touch_in(exit_station)
+      expect(subject.balance).to eq(max_balance-penalty_fare)
     end
     
   end
 
-  describe '#touch_out(station)' do
+  describe '#touch_out' do
 
-    it "says your journey has finished" do
-      subject.top_up(Oystercard::MAXIMUM_BALANCE)
-      subject.touch_in(station)
-      subject.touch_out(station)
-      expect(subject.in_journey?).to eq(false)
+    it "checks the journey has finished" do
+
+      subject.top_up(max_balance)
+      subject.touch_in(entry_station)
+      subject.touch_out(exit_station)
+
+      expect(subject).to_not be_in_journey
+
     end
 
     it "deducts journey fare from @balance" do
-      subject.top_up(Oystercard::MINIMUM_BALANCE)
-      subject.touch_in(station)
-      expect { subject.touch_out(station) }.to change{ subject.balance }.by -(Oystercard::MINIMUM_FARE)
+
+      subject.top_up(max_balance)
+      subject.touch_in(entry_station)
+
+      expect { subject.touch_out(exit_station) }.to change{ subject.balance }.by(-min_fare)
+
     end
 
-    it 'adds @entry_station and end_station to @journey_history' do
-      subject.top_up(Oystercard::MAXIMUM_BALANCE)
-      s1 = station #"Barbican-station"
-      subject.touch_in(s1)
-      s2 = station #"Wimbledon_station"
-      subject.touch_out(s2)
+    it 'adds entry_station and end_station to @journey_history' do
+
+      subject.top_up(max_balance)
+      subject.touch_in(entry_station)
+      subject.touch_out(exit_station)
+
       expect(subject.journey_history).to eq([{
-        entry_station: s1, 
-        exit_station: ""
+        entry_station: entry_station, 
+        exit_station: exit_station
       }])
+
+    end
+
+    it 'charges a penalty fare if touching out without touching in' do
+      expect { subject.touch_out(exit_station) }.to change{ subject.balance }.by(-penalty_fare)
     end
 
   end
@@ -79,16 +104,22 @@ let(:station) { instance_double("Station", :name => 'ABC', :zone => 1) }
   describe '#in_journey?' do
 
     it 'shows whether a card is in journey' do
-      subject.top_up(Oystercard::MINIMUM_BALANCE)
-      subject.touch_in(station)
+
+      subject.top_up(max_balance)
+      subject.touch_in(entry_station)
+
       expect(subject).to be_in_journey
+
     end
 
     it 'shows whether a card is in journey' do
-      subject.top_up(Oystercard::MINIMUM_BALANCE)
-      subject.touch_in(station)
-      subject.touch_out(station)
+
+      subject.top_up(max_balance)
+      subject.touch_in(entry_station)
+      subject.touch_out(exit_station)
+
       expect(subject).not_to be_in_journey
+
     end
 
   end
