@@ -2,8 +2,7 @@ require 'oystercard'
 
 describe Oystercard do
 
-let(:station) {instance_double("Station", :name => 'ABC', :zone => 1)}
-
+let(:station) { instance_double("Station", :name => 'ABC', :zone => 1) }
 
   describe "#balance" do
     
@@ -71,7 +70,7 @@ let(:station) {instance_double("Station", :name => 'ABC', :zone => 1)}
       subject.touch_out(s2)
       expect(subject.journey_history).to eq([{
         entry_station: s1, 
-        exit_station: s2
+        exit_station: ""
       }])
     end
 
