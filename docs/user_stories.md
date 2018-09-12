@@ -104,14 +104,13 @@ card.top_up(10)
 station = Station.new('charing_cross', 1)
 card.entry_station
 card.touch_in(station)
-card.entry_station-]4
+card.entry_station
 
 In order to be charged correctly
 As a customer
 I need a penalty charge deducted if I fail to touch in or out
 # irb
 require './lib/oystercard.rb'
-require './lib/station.rb'
 card = Oystercard.new
 card.top_up(10)
 kings_cross = Station.new('kings_cross', 1)

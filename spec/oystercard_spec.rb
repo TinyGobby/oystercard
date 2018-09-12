@@ -6,7 +6,8 @@ let(:entry_station) { instance_double("Station", :name => "Charring Cross", :zon
 let(:exit_station) { instance_double("Station", :name => "King's Cross", :zone => 1) }
 let(:min_balance) { Oystercard::MINIMUM_BALANCE }
 let(:max_balance) { Oystercard::MAXIMUM_BALANCE }
-let(:min_fare) { Oystercard::MINIMUM_FARE }
+let(:min_fare) { JourneyHandler::MINIMUM_FARE }
+let(:penalty_fare) { JourneyHandler::PENALTY_FARE }
 
   describe "#balance" do
     
@@ -37,15 +38,6 @@ let(:min_fare) { Oystercard::MINIMUM_FARE }
   end
 
   describe '#touch_in' do
-    
-    it "checks that the journey has started" do
-
-      subject.top_up(min_balance)
-      subject.touch_in(entry_station)
-
-      expect(subject).to be_in_journey
-
-    end
 
     it 'fails when @balance is below MINIMUM_BALANCE' do
       expect { subject.touch_in(entry_station) }.to raise_error('Balance too low')
@@ -53,11 +45,18 @@ let(:min_fare) { Oystercard::MINIMUM_FARE }
 
     it 'sets the starting station' do
       
-      subject.top_up(max_balance)
+      subject.top_up(min_balance)
       subject.touch_in(entry_station)
 
-      expect(subject.journey_history[-1][:entry_station]).to eq(entry_station)
+      expect(subject.journey_handler.entry_station).to eq(entry_station)
 
+    end
+
+    it 'charges a penalty fare if touched in twice' do
+      subject.top_up(max_balance)
+      subject.touch_in(entry_station)
+      subject.touch_in(exit_station)
+      expect(subject.balance).to eq(max_balance-6)
     end
     
   end
@@ -83,7 +82,7 @@ let(:min_fare) { Oystercard::MINIMUM_FARE }
 
     end
 
-    it 'adds @entry_station and end_station to @journey_history' do
+    it 'adds entry_station and end_station to @journey_history' do
 
       subject.top_up(max_balance)
       subject.touch_in(entry_station)
@@ -94,6 +93,10 @@ let(:min_fare) { Oystercard::MINIMUM_FARE }
         exit_station: exit_station
       }])
 
+    end
+
+    it 'charges a penalty fare if touching out without touching in' do
+      expect { subject.touch_out(exit_station) }.to change{ subject.balance }.by(-6)
     end
 
   end
