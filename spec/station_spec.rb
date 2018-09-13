@@ -12,7 +12,7 @@ describe Station do
   
   describe '#name' do
     it "should return the name of the Station" do
-      expect(subject.name).to eq 'King\'s Cross'
+      expect(subject.name).to eq "King's Cross"
     end
   end
 
