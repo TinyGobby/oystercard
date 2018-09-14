@@ -1,4 +1,4 @@
-class JourneyHandler
+class Journey
   attr_reader :entry_station, :journey
 
   MINIMUM_FARE = 1
@@ -11,7 +11,7 @@ class JourneyHandler
 
   def end(station)
     @penalty = @entry_station ? false : true
-    @journey = {entry_station: @entry_station, exit_station: station}
+    @journey = { entry_station: @entry_station, exit_station: station }
     @entry_station = nil
   end
 

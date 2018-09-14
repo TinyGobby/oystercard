@@ -1,6 +1,6 @@
 require 'journey'
 
-describe JourneyHandler do
+describe Journey do
   let(:entry_station) { double(:station) }
   let(:exit_station) { double(:station) }
 
@@ -23,7 +23,7 @@ describe JourneyHandler do
     it 'returns the journey cost at the end of the journey' do
       subject.start(entry_station)
       subject.end(exit_station)
-      expect(subject.fare).to eq(JourneyHandler::MINIMUM_FARE)
+      expect(subject.fare).to eq(Journey::MINIMUM_FARE)
     end
   end
 end
